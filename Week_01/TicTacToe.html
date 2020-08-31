@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>井字棋</title>
+</head>
+<style>
+    #board {
+        margin: 200px auto;
+        background-color: darkslategray;
+        width: 306px;
+        height: 306px;
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .cell {
+        width: 100px;
+        height: 100px;
+        line-height: 100px;
+        font-size: 50px;
+        text-align: center;
+        color: #ccc;
+        border: 1px solid #ccc;
+    }
+</style>
+
+<body>
+    <div id="board"></div>
+</body>
+
+</html>
+<script>
+    let pattern = [
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+    ];
+    let color = 1;
+    const textObj = {
+        1: 'O',
+        2: 'X',
+    };
+    // 初始化
+    function show(pattern) {
+        const board = document.getElementById('board');
+        for (let j = 0; j < 3; j++) {
+            for (let i = 0; i < 3; i++) {
+                let cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.innerText = pattern[j][i] === 2 ? 'X' :
+                    pattern[j][i] === 1 ? 'O' : '';
+                cell.addEventListener('click', () => move(i, j));
+                board.appendChild(cell);
+            }
+        }
+
+    }
+    // 最终落子
+    function addText(index, text) {
+        const board = document.getElementById('board');
+        if (!board.children[index].innerText) {
+            board.children[index].innerText = text;
+        }
+    }
+    // 检查输赢
+    function check(pattern, color) {
+        // 同行
+        for (i = 0; i < 3; i ++) {
+            let win = true;
+            for  (j = 0; j < 3; j ++) {
+                if (pattern[i][j] !== color) {
+                    win = false;
+                }
+            }
+            if (win) {
+                return true;
+            }
+        }
+        // 同列
+        for (i = 0; i < 3; i ++) {
+            let win = true;
+            for  (j = 0; j < 3; j ++) {
+                if (pattern[j][i] !== color) {
+                    win = false;
+                }
+            }
+            if (win) {
+                return true;
+            }
+        }
+        // 斜行
+        {
+            let win = true;
+            for (i = 0; i < 3; i ++) {
+                if (pattern[i][i] !== color) {
+                    win = false;
+                }
+            }
+            if (win) {
+                return true;
+            }
+        }
+        {
+            let win = true;
+            for (i = 0; i < 3; i ++) {
+                if (pattern[i][2-i] !== color) {
+                    win = false;
+                }
+            }
+            if (win) {
+                return true;
+            }
+        }
+    }
+    function clone(pattern) {
+        return JSON.parse(JSON.stringify(pattern));
+    }
+    // 检查下一步是否能胜利
+    function willWin(pattern, color) {
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j ++) {
+                if (pattern[i][j]) {
+                    continue;
+                }
+                let tmp = clone(pattern);
+                tmp[i][j] = color;
+                if (check(tmp, color)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    // 落子前处理
+    function move(x, y) {
+        pattern[y][x] = color;
+        if (check(pattern, color)) {
+            alert(`持${color === 2 ? 'X' : 'O'}者胜利`);
+        }
+        const text = textObj[color];
+        color = 2 / color;
+        if (willWin(pattern, color)) {
+            console.log(`持${color === 2 ? 'X' : 'O'}者将要胜利`);
+        }
+        index = (y * 3) + x;
+        addText(index, text);
+    }
+    show(pattern);
+</script>
